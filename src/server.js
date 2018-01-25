@@ -2,15 +2,17 @@ const throng = require('throng');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const cors = require('cors');
+// const cors = require('cors');
 const morgan = require('morgan');
 const winston = require('winston');
 
 const app = express();
-const { router } = require('./routers');
+const { exerciseRouter } = require('./routers/exercise.router');
+const { userRouter } = require('./routers/user.router');
+
 
 const {
-  PORT, DATABASE_URL, CONCURRENCY: WORKERS, ENV, CLIENT_ORIGIN,
+  PORT, DATABASE_URL, CONCURRENCY: WORKERS, ENV,
 } = require('./config/main');
 
 mongoose.Promise = global.Promise;
@@ -33,7 +35,8 @@ app.use((req, res, next) => {
 });
 
 // Routers
-app.use('/api', router);
+app.use('/api', exerciseRouter);
+app.use('/api', userRouter);
 
 // Body Parser
 app.use(bodyParser.urlencoded({ extended: false }));

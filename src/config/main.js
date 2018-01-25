@@ -1,7 +1,7 @@
 module.exports = {
 
   // CORS
-  CLIENT_ORIGIN: 'https://heartstrong.netlify.com/',
+  // CLIENT_ORIGIN: 'https://heartstrong.netlify.com/',
 
   // Database URLs
   DATABASE_URL: process.env.DATABASE_URL || global.DATABASE_URL || 'mongodb://localhost/heart-strong',
