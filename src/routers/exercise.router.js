@@ -21,36 +21,66 @@ exerciseRouter.get('/exercise-log', (req, res) => {
     },
     {
       _id: '5a629464f267925685d62524',
-      date: '2017-12-23',
+      date: '2017-12-02',
       duration: 25,
-      activity: 'basketball',
+      activity: 'aerobics',
     },
     {
       _id: '6a62904f0fb100561e03e36e',
       date: '2017-12-23',
       duration: 30,
-      activity: 'tennis',
+      activity: 'running',
     },
     {
       _id: '6a629464f267925685d62524',
-      date: '2018-01-24',
+      date: '2018-01-09',
       duration: 45,
-      activity: 'basketball',
+      activity: 'aerobics',
     },
     {
       _id: '7a62904f0fb100561e03e36e',
-      date: '2017-12-23',
+      date: '2017-12-20',
       duration: 60,
       activity: 'tennis',
     },
     {
       _id: '7a629464f267925685d62524',
-      date: '2018-01-24',
+      date: '2018-01-06',
       duration: 55,
       activity: 'basketball',
     },
+    {
+      _id: '5a62904f0fb100561e03e36e',
+      date: '2018-01-21',
+      duration: 10,
+      activity: 'tennis',
+    },
+    {
+      _id: '5a629464f267925685d62524',
+      date: '2017-12-10',
+      duration: 25,
+      activity: 'running',
+    },
+    {
+      _id: '6a62904f0fb100561e03e36e',
+      date: '2017-12-13',
+      duration: 30,
+      activity: 'tennis',
+    },
+    {
+      _id: '6a629464f267925685d62524',
+      date: '2018-01-01',
+      duration: 45,
+      activity: 'basketball',
+    },
+    {
+      _id: '7a62904f0fb100561e03e36e',
+      date: '2017-12-03',
+      duration: 60,
+      activity: 'tennis',
+    },
   ];
-
+  exerciseLogArray.sort((a, b) => new Date(b.date) - new Date(a.date));
   const totalExerciseSessions = exerciseLogArray.length;
   let totalExerciseMinutes = 0;
   const activitiesCount = {};
@@ -65,11 +95,22 @@ exerciseRouter.get('/exercise-log', (req, res) => {
     }
   });
 
+  const activitiesArray = [];
+  const activities = Object.keys(activitiesCount);
+  const count = Object.values(activitiesCount);
+  for (let i = 0; i < activities.length; i++) {
+    const myObj = {};
+    myObj.activity = activities[i];
+    myObj.count = count[i];
+    activitiesArray.push(myObj);
+  }
   const statistics = {
     totalExerciseSessions,
     totalExerciseMinutes,
-    averageMinutesPerSession: (totalExerciseMinutes / totalExerciseSessions),
-    activitiesCount,
+    averageMinutesPerSession: (totalExerciseMinutes / totalExerciseSessions).toFixed(1),
+    activitiesArray,
+    activities,
+    count,
   };
 
   const responseObject = {
@@ -82,6 +123,7 @@ exerciseRouter.get('/exercise-log', (req, res) => {
 
 exerciseRouter.post('/add-exercise', jsonParser, (req, res) => {
   console.log(req.body);
+  // console.log(req.user);
   Exercise.create({
     date: req.body.date,
     activity: req.body.activity,

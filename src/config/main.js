@@ -9,4 +9,8 @@ module.exports = {
 
   // Server listen port
   PORT: process.env.PORT || 8080,
+
+  // JWT
+  JWT_SECRET: 'godisgood',
+  JWT_EXPIRY: '7d',
 };
