@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const config = require('../config/main')
+const config = require('../config/main');
+const { dataParser } = require('../config/utils');
 
 
 const jsonParser = bodyParser.json();
@@ -15,6 +16,20 @@ mongoose.Promise = global.Promise;
 const { User } = require('../models/user');
 const { Exercise } = require('../models/exercise');
 const { Badge } = require('../models/badge');
+
+userRouter.use(passport.initialize());
+require('../config/passport')(passport);
+
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
+
+const createAuthToken = function(user) {
+  return jwt.sign({ user }, config.JWT_SECRET, {
+    expiresIn: config.JWT_EXPIRY,
+    algorithm: 'HS256'
+  });
+};
+
 
 userRouter.get('/badges', (req, res) => {
   res.json([
@@ -73,16 +88,15 @@ userRouter.post('/signup', jsonParser, (req, res) => {
     });
 });
 
-const createAuthToken = function(user) {
-  return jwt.sign({ user }, config.JWT_SECRET, {
-    expiresIn: config.JWT_EXPIRY,
-    algorithm: 'HS256'
-  });
-};
+
 
 userRouter.post('/login', jsonParser, (req, res) => {
   console.log(req.body);
   User.findOne({ email: req.body.email })
+    .populate({
+      path: 'exerciseLog',
+      select: '_id date activity duration'
+    })
     .then((foundUser) => {
       console.log(foundUser);
       if (!(foundUser.password === req.body.password)) {
@@ -93,17 +107,18 @@ userRouter.post('/login', jsonParser, (req, res) => {
         const payload = {
           email: req.body.email,
           _id: foundUser._id
-        }
+        };
         const authToken = createAuthToken(payload)
-        const activitiesArraySorted = foundUser.activities.sort();
+        const sortedActivities = foundUser.activities.sort();
+        const parsedData = dataParser(foundUser.exerciseLog);
+        console.log(parsedData);
         const user = {
-          message: 'Successfully reached /login',
-          user: {
-            email: foundUser.email,
-            _id: foundUser._id,
-            activities: activitiesArraySorted,
-            authToken
-          },
+          message: 'Successfully logged in',
+          currentUser: foundUser._id,
+          activities: sortedActivities,
+          exerciseLog: parsedData.exerciseLog,
+          exerciseStatistics: parsedData.exerciseStatistics,
+          authToken
         };
         res.json(user);
       }
@@ -114,11 +129,11 @@ userRouter.post('/login', jsonParser, (req, res) => {
     });
 });
 
-userRouter.post('/activity', jsonParser, (req, res) => {
-  console.log(req.body);
+userRouter.post('/activity', jwtAuth, jsonParser, (req, res) => {
+  console.log(req.user);
   const activity = req.body.activity.toLowerCase();
   User.findByIdAndUpdate(
-    req.body.id,
+    req.user._id,
     {
       $addToSet:
       { activities: activity }
@@ -127,7 +142,8 @@ userRouter.post('/activity', jsonParser, (req, res) => {
   )
     .then((response) => {
       console.log(response);
-      res.json({ activities: response.activities })
+      const sortedActivities = response.activities.sort();
+      res.json({ activities: sortedActivities })
     })
   .catch((err) => {
     console.error(err);
@@ -135,6 +151,30 @@ userRouter.post('/activity', jsonParser, (req, res) => {
   });
 });
 
+
+userRouter.get('/user-info', jwtAuth, (req, res) => {
+  console.log(req.user);
+  User.findById(req.user._id)
+  .populate({
+    path: 'exerciseLog',
+    select: 'date activity duration'
+  })
+  .then((result) => {
+    const parsedData = dataParser(result.exerciseLog);
+    console.log(parsedData);
+    const sortedActivities = result.activities.sort();
+    const userInfo = {
+      currentUser: result._id,
+      activities: sortedActivities,
+      exerciseLog: parsedData.exerciseLog,
+      exerciseStatistics: parsedData.exerciseStatistics,
+    }
+    res.json(userInfo);
+  })
+  .catch((err) => {
+    console.log(err);
+  })
+})
 
 // userRouter.post('/login', jsonParser, (req, res) => {
 //   console.log(req.body);
