@@ -2,7 +2,6 @@ const throng = require('throng');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-// const cors = require('cors');
 const morgan = require('morgan');
 const winston = require('winston');
 
@@ -18,13 +17,6 @@ const {
 mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
-
-
-/* Middlewares */
-// CORS
-// app.use(cors({
-//   origin: CLIENT_ORIGIN,
-// }));
 
 // CORS
 app.use((req, res, next) => {

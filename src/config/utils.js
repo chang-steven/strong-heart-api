@@ -1,5 +1,4 @@
 const dataParser = (input) => {
-  console.log('Ran Data Parser');
   const exerciseLogArray = input;
   exerciseLogArray.sort((a, b) => new Date(b.date) - new Date(a.date));
   const totalExerciseSessions = exerciseLogArray.length;
