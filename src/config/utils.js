@@ -1,3 +1,5 @@
+// Data parser that processes and returns usable data to the client to display
+
 const dataParser = (input) => {
   const exerciseLogArray = input;
   exerciseLogArray.sort((a, b) => new Date(b.date) - new Date(a.date));

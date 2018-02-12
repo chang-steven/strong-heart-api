@@ -18,6 +18,7 @@ const { User } = require('../models/user');
 const { Exercise } = require('../models/exercise');
 
 exerciseRouter.post('/add-exercise', jwtAuth, jsonParser, (req, res) => {
+  console.log(req.body);
   Exercise.create({
     userId: req.user._id,
     date: req.body.date,
@@ -25,7 +26,11 @@ exerciseRouter.post('/add-exercise', jwtAuth, jsonParser, (req, res) => {
     duration: req.body.duration,
   })
     .then((result) => {
-      User.findByIdAndUpdate(req.user._id, { $push: { exerciseLog: result._id } }, { new: true })
+      return User.findByIdAndUpdate(
+        req.user._id,
+        { $push: { exerciseLog: result._id } },
+        { new: true },
+      )
         .populate({
           path: 'exerciseLog',
           select: '_id date activity duration',

@@ -8,8 +8,6 @@ const winston = require('winston');
 const app = express();
 const { exerciseRouter } = require('./routers/exercise.router');
 const { userRouter } = require('./routers/user.router');
-
-
 const {
   PORT, DATABASE_URL, CONCURRENCY: WORKERS, ENV,
 } = require('./config/main');
