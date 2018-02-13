@@ -76,10 +76,17 @@ exerciseRouter.put('/edit-exercise/', jwtAuth, jsonParser, (req, res) => {
 });
 
 exerciseRouter.delete('/delete', jwtAuth, jsonParser, (req, res) => {
-  console.log(req.body);
   Exercise.findByIdAndRemove(req.body.id)
     .then(() => {
-      res.status(200).json({ message: 'Successfully deleted exercise session' });
+      return User.findByIdAndUpdate(req.user._id, { $pull: { exerciseLog: req.body.id } })
+        .populate({
+          path: 'exerciseLog',
+          select: '_id date activity duration',
+        });
+    })
+    .then((result) => {
+      const parsedData = dataParser(result.exerciseLog);
+      res.status(200).json(parsedData);
     })
     .catch((err) => {
       console.error(err);

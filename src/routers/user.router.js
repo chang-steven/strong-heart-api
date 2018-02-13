@@ -51,6 +51,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
       );
     })
     .then((user) => {
+      console.log(user);
       const message = { message: `Successfully created user: ${user.email}` };
       return res.status(200).json(message);
     })
