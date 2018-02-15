@@ -1,11 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const passport = require('passport');
 const { dataParser } = require('../config/utils');
 const { User } = require('../models/user');
 const { Exercise } = require('../models/exercise');
 
-const jsonParser = bodyParser.json();
 const exerciseRouter = express.Router();
 
 exerciseRouter.use(passport.initialize());
@@ -13,7 +11,7 @@ require('../config/passport')(passport);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-exerciseRouter.post('/exercise', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
   console.log(req.body);
 
   const requiredFields = ['date', 'activity', 'duration'];
@@ -56,7 +54,7 @@ exerciseRouter.post('/exercise', jwtAuth, jsonParser, (req, res) => {
     });
 });
 
-exerciseRouter.put('/exercise', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.put('/exercise', jwtAuth, (req, res) => {
   console.log(req.body);
   const editedExercise = {
     date: req.body.date,
@@ -82,7 +80,7 @@ exerciseRouter.put('/exercise', jwtAuth, jsonParser, (req, res) => {
     });
 });
 
-exerciseRouter.delete('/exercise', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.delete('/exercise', jwtAuth, (req, res) => {
   Exercise.findByIdAndRemove(req.body.id)
     .then(() => (
       User.findByIdAndUpdate(req.user._id, { $pull: { exerciseLog: req.body.id } })

@@ -1,12 +1,10 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('../config/main');
 const { dataParser } = require('../config/utils');
 const { User } = require('../models/user');
 
-const jsonParser = bodyParser.json();
 const userRouter = express.Router();
 
 userRouter.use(passport.initialize());
@@ -23,7 +21,7 @@ const createAuthToken = user => jwt.sign(
 );
 
 // New user registration
-userRouter.post('/signup', jsonParser, (req, res) => {
+userRouter.post('/signup', (req, res) => {
   console.log(req.body);
   const requiredFields = ['email', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
@@ -96,7 +94,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 });
 
 // User Login
-userRouter.post('/user', jsonParser, (req, res) => {
+userRouter.post('/user', (req, res) => {
   console.log(req.body);
   User.findOne({ email: req.body.email })
     .populate({
@@ -139,7 +137,7 @@ userRouter.post('/user', jsonParser, (req, res) => {
     });
 });
 
-userRouter.post('/activity', jwtAuth, jsonParser, (req, res) => {
+userRouter.post('/activity', jwtAuth, (req, res) => {
   console.log(req.user);
   const activity = req.body.activity.toLowerCase();
   let numActivities;

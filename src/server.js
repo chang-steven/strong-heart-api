@@ -27,13 +27,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routers
-app.use('/api', exerciseRouter);
-app.use('/api', userRouter);
-
 // Body Parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// Routers
+app.use('/api', exerciseRouter);
+app.use('/api', userRouter);
 
 // Logging
 morgan.token('processId', () => process.pid);
