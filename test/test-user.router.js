@@ -1,4 +1,4 @@
-/* describe, it */
+/* describe, it, before, beforeEach, afterEach, after */
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -9,7 +9,14 @@ const mongoose = require('mongoose');
 const { User } = require('../src/models/user');
 const { Exercise } = require('../src/models/exercise');
 
-const { seedHeartStrongDatabase, generateUserData, generateExerciseData, createTestUser, teardownDatabase } = require('./test-functions');
+const {
+  seedHeartStrongDatabase,
+  generateUserData,
+  generateExerciseData,
+  createTestUser,
+  teardownDatabase
+} = require('./test-functions');
+
 const { app, runServer, closeServer } = require('../src/server');
 const { TEST_DATABASE_URL, JWT_SECRET } = require('../src/config/main');
 
@@ -23,12 +30,12 @@ describe('User Router to /api/user', () => {
   beforeEach((done) => {
     testUserData = generateUserData();
     User.create(testUserData)
-      .then(user => {
+      .then((user) => {
         testUser = user;
         seedHeartStrongDatabase()
-        .then(() => done());
+          .then(() => done());
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   });
 
   afterEach(() => teardownDatabase());
@@ -36,11 +43,10 @@ describe('User Router to /api/user', () => {
   after(() => closeServer());
 
   describe('POST request to /user', () => {
-
     it('Should create a new user in the database', () => {
       const newUser = {
         email: faker.internet.email(),
-        password: faker.internet.password()
+        password: faker.internet.password(),
       };
       return chai.request(app)
         .post('/api/signup')

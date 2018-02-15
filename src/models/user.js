@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   created: { type: Date, default: Date.now, required: true },
   email: { type: String, lowercase: true, unique: true, required: true },
   password: { type: String, required: true },
-  activities: [{ type: String, lowercase: true, unique: true }],
+  activities: [{ type: String, lowercase: true }],
   exerciseLog: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }]
 });
 

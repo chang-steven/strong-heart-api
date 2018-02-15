@@ -1,5 +1,4 @@
 const faker = require('faker');
-const should = require('chai').should();
 const mongoose = require('mongoose');
 
 const { User } = require('../src/models/user');
@@ -17,7 +16,7 @@ function generateExerciseData() {
     date: faker.date.past(),
     activity: faker.random.word(),
     duration: faker.random.number(),
-  }
+  };
 }
 
 function createTestUser() {
@@ -25,14 +24,14 @@ function createTestUser() {
 }
 
 function createTestUserAndPostExercises(i) {
-  console.log(`Creating User ${i+1}`);
+  console.log(`Creating User ${i + 1}`);
   return User.create(generateUserData())
     .then((user) => {
       const userId = user._id;
       let j = 0;
       const exercisePromises = [];
       while (j < 2) {
-        console.log(`Generating exercise ${j+1} for user`)
+        console.log(`Generating exercise ${j + 1} for user`);
         const newExercise = generateExerciseData();
         newExercise.userId = userId;
         exercisePromises.push(Exercise.create(newExercise));
@@ -41,6 +40,9 @@ function createTestUserAndPostExercises(i) {
       console.log('Generated Exercise');
       console.log('==================');
       return Promise.all(exercisePromises);
+    })
+    .catch((err) => {
+      console.error(err);
     });
 }
 
@@ -50,7 +52,7 @@ function seedHeartStrongDatabase() {
   while (i < 2) {
     promises.push(createTestUserAndPostExercises(i));
     i++;
-  };
+  }
   console.log('Generated iteration of user data');
   console.log('.....................');
   return Promise.all(promises);
@@ -61,4 +63,10 @@ function teardownDatabase() {
   return mongoose.connection.dropDatabase();
 }
 
-module.exports = { seedHeartStrongDatabase, generateUserData, generateExerciseData, createTestUser, teardownDatabase }
+module.exports = {
+  seedHeartStrongDatabase,
+  generateUserData,
+  generateExerciseData,
+  createTestUser,
+  teardownDatabase,
+};
