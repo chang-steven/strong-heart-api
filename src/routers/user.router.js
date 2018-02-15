@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
@@ -9,8 +8,6 @@ const { User } = require('../models/user');
 
 const jsonParser = bodyParser.json();
 const userRouter = express.Router();
-userRouter.use(bodyParser.urlencoded({ extended: false }));
-mongoose.Promise = global.Promise;
 
 userRouter.use(passport.initialize());
 require('../config/passport')(passport);
@@ -28,16 +25,53 @@ const createAuthToken = user => jwt.sign(
 // New user registration
 userRouter.post('/signup', jsonParser, (req, res) => {
   console.log(req.body);
-  return User.hashPassword(req.body.password)
-    .then((hashedPassword) => {
-      console.log(hashedPassword);
-      return User.create({
-        email: req.body.email,
-        password: hashedPassword,
-      });
+  const requiredFields = ['email', 'password'];
+  const missingField = requiredFields.find(field => !(field in req.body));
+
+  if (missingField) {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'Missing field',
+      location: missingField
+    });
+  }
+
+  const explicityTrimmedFields = ['email', 'password'];
+  const nonTrimmedField = explicityTrimmedFields.find(
+    field => req.body[field].trim() !== req.body[field]);
+
+  if (nonTrimmedField) {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'Cannot start or end with whitespace',
+      location: nonTrimmedField
+    });
+  }
+
+  return User.findOne( {email: req.body.email})
+    .then((user) => {
+      if (user) {
+        return Promise.reject({
+          code: 409,
+          reason: 'ValidationError',
+          message: 'Email already taken',
+          location: 'email'
+        });
+      }
+    })
+    .then(() => {
+      return User.hashPassword(req.body.password)
+        .then((hashedPassword) => {
+          return User.create({
+            email: req.body.email,
+            password: hashedPassword,
+          });
+        })
     })
     .then((user) => {
-      const activities = ['basketball', 'tennis', 'running', 'aerobics'];
+      const activities = ['aerobics', 'basketball', 'running', 'tennis'];
       return User.findByIdAndUpdate(
         user._id, {
           $addToSet:
@@ -52,17 +86,17 @@ userRouter.post('/signup', jsonParser, (req, res) => {
     })
     .then((user) => {
       console.log(user);
-      const message = { message: `Successfully created user: ${user.email}` };
+      const message = { message: `Successfully created user: ${user.email}, please log in!` };
       return res.status(200).json(message);
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ message: 'Sorry, something went wrong, please try again...' });
+      res.status(err.code || 500).json(err);
     });
 });
 
 // User Login
-userRouter.post('/login', jsonParser, (req, res) => {
+userRouter.post('/user', jsonParser, (req, res) => {
   console.log(req.body);
   User.findOne({ email: req.body.email })
     .populate({
@@ -97,23 +131,41 @@ userRouter.post('/login', jsonParser, (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).json({ error: 'Please try again' });
+      res.status(404).json({
+        code: 404,
+        reason: 'ValidationError',
+        message: 'Sorry, incorrect credentials.  Please try again.',
+      });
     });
 });
 
 userRouter.post('/activity', jwtAuth, jsonParser, (req, res) => {
   console.log(req.user);
   const activity = req.body.activity.toLowerCase();
-  User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $addToSet:
-      { activities: activity },
-    },
-    { new: true },
-  )
+  let numActivities;
+  User.findById(req.user._id)
+    .then((data) => {
+      numActivities = data.activities.length
+    })
+    .then(() => {
+      return User.findByIdAndUpdate(
+        req.user._id,
+        {
+          $addToSet:
+          { activities: activity },
+        },
+        { new: true },
+      )
+    })
     .then((response) => {
       console.log(response);
+      if (numActivities === response.activities.length) {
+        return res.status(422).json({
+          code: 422,
+          reason: 'Error',
+          message: 'That activity has already been added.',
+        });
+      }
       const sortedActivities = response.activities.sort();
       res.json({ activities: sortedActivities });
     })
@@ -123,8 +175,7 @@ userRouter.post('/activity', jwtAuth, jsonParser, (req, res) => {
     });
 });
 
-
-userRouter.get('/user-info', jwtAuth, (req, res) => {
+userRouter.get('/user', jwtAuth, (req, res) => {
   console.log(req.user);
   User.findById(req.user._id)
     .populate({

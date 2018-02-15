@@ -1,41 +1,49 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const { dataParser } = require('../config/utils');
+const { User } = require('../models/user');
+const { Exercise } = require('../models/exercise');
 
 const jsonParser = bodyParser.json();
 const exerciseRouter = express.Router();
-exerciseRouter.use(bodyParser.urlencoded({ extended: false }));
 
 exerciseRouter.use(passport.initialize());
 require('../config/passport')(passport);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-mongoose.Promise = global.Promise;
-const { User } = require('../models/user');
-const { Exercise } = require('../models/exercise');
-
-exerciseRouter.post('/add-exercise', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.post('/exercise', jwtAuth, jsonParser, (req, res) => {
   console.log(req.body);
+
+  const requiredFields = ['date', 'activity', 'duration'];
+  const missingField = requiredFields.find(field => !(field in req.body));
+
+  if (missingField) {
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: 'Missing field',
+      location: missingField
+    });
+  }
+
   Exercise.create({
     userId: req.user._id,
     date: req.body.date,
     activity: req.body.activity,
     duration: req.body.duration,
   })
-    .then((result) => {
-      return User.findByIdAndUpdate(
+    .then(result => (
+      User.findByIdAndUpdate(
         req.user._id,
         { $push: { exerciseLog: result._id } },
         { new: true },
-      )
-        .populate({
-          path: 'exerciseLog',
-          select: '_id date activity duration',
-        });
-    })
+      ).populate({
+        path: 'exerciseLog',
+        select: '_id date activity duration',
+      })
+    ))
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
       console.log(parsedData);
@@ -48,7 +56,7 @@ exerciseRouter.post('/add-exercise', jwtAuth, jsonParser, (req, res) => {
     });
 });
 
-exerciseRouter.put('/edit-exercise/', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.put('/exercise', jwtAuth, jsonParser, (req, res) => {
   console.log(req.body);
   const editedExercise = {
     date: req.body.date,
@@ -57,17 +65,16 @@ exerciseRouter.put('/edit-exercise/', jwtAuth, jsonParser, (req, res) => {
   };
   console.log(editedExercise);
   Exercise.findByIdAndUpdate(req.body._id, { $set: editedExercise })
-    .then(() => {
-      return User.findById(req.user._id)
+    .then(() => (
+      User.findById(req.user._id)
         .populate({
           path: 'exerciseLog',
           select: '_id date activity duration',
-        });
-    })
+        })
+    ))
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
       console.log(parsedData);
-
       return res.status(200).json(parsedData);
     })
     .catch(() => {
@@ -75,15 +82,15 @@ exerciseRouter.put('/edit-exercise/', jwtAuth, jsonParser, (req, res) => {
     });
 });
 
-exerciseRouter.delete('/delete', jwtAuth, jsonParser, (req, res) => {
+exerciseRouter.delete('/exercise', jwtAuth, jsonParser, (req, res) => {
   Exercise.findByIdAndRemove(req.body.id)
-    .then(() => {
-      return User.findByIdAndUpdate(req.user._id, { $pull: { exerciseLog: req.body.id } })
+    .then(() => (
+      User.findByIdAndUpdate(req.user._id, { $pull: { exerciseLog: req.body.id } })
         .populate({
           path: 'exerciseLog',
           select: '_id date activity duration',
-        });
-    })
+        })
+    ))
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
       res.status(200).json(parsedData);

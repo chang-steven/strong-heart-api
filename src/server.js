@@ -9,12 +9,15 @@ const app = express();
 const { exerciseRouter } = require('./routers/exercise.router');
 const { userRouter } = require('./routers/user.router');
 const {
-  PORT, DATABASE_URL, CONCURRENCY: WORKERS, ENV,
+  PORT,
+  DATABASE_URL,
+  CONCURRENCY: WORKERS, ENV,
 } = require('./config/main');
 
 mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
+
 
 // CORS
 app.use((req, res, next) => {
