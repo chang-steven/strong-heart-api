@@ -48,7 +48,7 @@ userRouter.post('/signup', (req, res) => {
     });
   }
 
-  return User.findOne( {email: req.body.email})
+  return User.findOne({ email: req.body.email })
     .then((user) => {
       if (user) {
         return Promise.reject({
@@ -95,6 +95,7 @@ userRouter.post('/signup', (req, res) => {
 
 // User Login
 userRouter.post('/user', (req, res) => {
+  console.log('.....Inside of api/user post request');
   console.log(req.body);
   User.findOne({ email: req.body.email })
     .populate({
@@ -102,6 +103,7 @@ userRouter.post('/user', (req, res) => {
       select: '_id date activity duration',
     })
     .then((foundUser) => {
+      console.log(foundUser);
       return foundUser.validatePassword(req.body.password)
         .then((isPasswordCorrect) => {
           if (!isPasswordCorrect) {
@@ -139,6 +141,7 @@ userRouter.post('/user', (req, res) => {
 
 userRouter.post('/activity', jwtAuth, (req, res) => {
   console.log(req.user);
+  console.log(req.body);
   const activity = req.body.activity.toLowerCase();
   let numActivities;
   User.findById(req.user._id)
