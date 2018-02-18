@@ -77,22 +77,22 @@ describe('User Router to /api/user', () => {
     });
   });
 
-  // describe('POST request to /user', () => {
-  //   it('Should login a registered user', () => {
-  //     const loginUser = {
-  //       email: testUserData.email,
-  //       password: testUserData.unhashedPassword
-  //     }
-  //     return chai.request(app)
-  //       .post('/api/user')
-  //       .send(loginUser)
-  //       .then((res) => {
-  //         res.should.have.status(200);
-  //         res.should.be.json;
-  //         res.body.should.include.keys('message', 'currentUser', 'activities', 'exerciseLog', 'exerciseStatistics', 'authToken');
-  //       });
-  //   });
-  // });
+  describe('POST request to /user', () => {
+    it('Should login a registered user', () => {
+      const loginUser = {
+        email: testUserData.email,
+        password: testUserData.unhashedPassword
+      }
+      return chai.request(app)
+        .post('/api/user')
+        .send(loginUser)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.include.keys('message', 'currentUser', 'activities', 'exerciseLog', 'exerciseStatistics', 'authToken');
+        });
+    });
+  });
 
   describe('GET request to /user', () => {
     it('Should get user info if token', () => {

@@ -62,7 +62,10 @@ describe('Exercise Router to /api/exercise', () => {
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.include.keys('exerciseLog', 'exerciseStatistics');
-        });
+        })
+        .catch((err) => {
+          console.log(err);
+        })
     });
   });
 
