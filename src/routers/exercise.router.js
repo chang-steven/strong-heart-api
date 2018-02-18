@@ -12,8 +12,6 @@ require('../config/passport')(passport);
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
 exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
-  console.log(req.body);
-
   const requiredFields = ['date', 'activity', 'duration'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -22,7 +20,7 @@ exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
       code: 422,
       reason: 'ValidationError',
       message: 'Missing field',
-      location: missingField
+      location: missingField,
     });
   }
 
@@ -44,7 +42,6 @@ exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
     ))
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
-      console.log(parsedData);
 
       return res.status(200).json(parsedData);
     })
@@ -55,13 +52,11 @@ exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
 });
 
 exerciseRouter.put('/exercise', jwtAuth, (req, res) => {
-  console.log(req.body);
   const editedExercise = {
     date: req.body.date,
     activity: req.body.activity,
     duration: req.body.duration,
   };
-  console.log(editedExercise);
   Exercise.findByIdAndUpdate(req.body._id, { $set: editedExercise })
     .then(() => (
       User.findById(req.user._id)
@@ -72,7 +67,6 @@ exerciseRouter.put('/exercise', jwtAuth, (req, res) => {
     ))
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
-      console.log(parsedData);
       return res.status(200).json(parsedData);
     })
     .catch(() => {

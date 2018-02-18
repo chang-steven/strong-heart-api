@@ -25,7 +25,15 @@ function createTestUser() {
 
 function createTestUserAndPostExercises(i) {
   console.log(`Creating User ${i + 1}`);
-  return User.create(generateUserData())
+  const testUser = {
+    email: faker.internet.email(),
+    password: null,
+  };
+  return User.hashPassword(faker.internet.password())
+    .then((password) => {
+      testUser.password = password;
+      return User.create(testUser);
+    })
     .then((user) => {
       const userId = user._id;
       let j = 0;

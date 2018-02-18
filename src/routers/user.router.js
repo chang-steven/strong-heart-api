@@ -6,8 +6,8 @@ const { dataParser } = require('../config/utils');
 const { User } = require('../models/user');
 
 const userRouter = express.Router();
-
 userRouter.use(passport.initialize());
+
 require('../config/passport')(passport);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
@@ -22,7 +22,6 @@ const createAuthToken = user => jwt.sign(
 
 // New user registration
 userRouter.post('/signup', (req, res) => {
-  console.log(req.body);
   const requiredFields = ['email', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -31,7 +30,7 @@ userRouter.post('/signup', (req, res) => {
       code: 422,
       reason: 'ValidationError',
       message: 'Missing field',
-      location: missingField
+      location: missingField,
     });
   }
 
@@ -48,7 +47,7 @@ userRouter.post('/signup', (req, res) => {
     });
   }
 
-  return User.findOne( {email: req.body.email})
+  return User.findOne({ email: req.body.email })
     .then((user) => {
       if (user) {
         return Promise.reject({
@@ -66,7 +65,7 @@ userRouter.post('/signup', (req, res) => {
             email: req.body.email,
             password: hashedPassword,
           });
-        })
+        });
     })
     .then((user) => {
       const activities = ['aerobics', 'basketball', 'running', 'tennis'];
@@ -83,7 +82,6 @@ userRouter.post('/signup', (req, res) => {
       );
     })
     .then((user) => {
-      console.log(user);
       const message = { message: `Successfully created user: ${user.email}, please log in!` };
       return res.status(200).json(message);
     })
@@ -95,7 +93,6 @@ userRouter.post('/signup', (req, res) => {
 
 // User Login
 userRouter.post('/user', (req, res) => {
-  console.log(req.body);
   User.findOne({ email: req.body.email })
     .populate({
       path: 'exerciseLog',
@@ -138,12 +135,11 @@ userRouter.post('/user', (req, res) => {
 });
 
 userRouter.post('/activity', jwtAuth, (req, res) => {
-  console.log(req.user);
   const activity = req.body.activity.toLowerCase();
   let numActivities;
   User.findById(req.user._id)
     .then((data) => {
-      numActivities = data.activities.length
+      numActivities = data.activities.length;
     })
     .then(() => {
       return User.findByIdAndUpdate(
@@ -153,10 +149,9 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
           { activities: activity },
         },
         { new: true },
-      )
+      );
     })
     .then((response) => {
-      console.log(response);
       if (numActivities === response.activities.length) {
         return res.status(422).json({
           code: 422,
@@ -174,7 +169,6 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
 });
 
 userRouter.get('/user', jwtAuth, (req, res) => {
-  console.log(req.user);
   User.findById(req.user._id)
     .populate({
       path: 'exerciseLog',
@@ -182,7 +176,6 @@ userRouter.get('/user', jwtAuth, (req, res) => {
     })
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
-      console.log(parsedData);
       const sortedActivities = result.activities.sort();
       const userInfo = {
         currentUser: result._id,
