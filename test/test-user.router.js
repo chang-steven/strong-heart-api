@@ -31,12 +31,9 @@ describe('User Router to /api/user', () => {
       email: faker.internet.email(),
       unhashedPassword: faker.internet.password(),
     };
-    console.log(testUserData);
     User.hashPassword(testUserData.unhashedPassword)
       .then((password) => {
-        console.log(password);
         testUserData.password = password;
-        console.log(testUserData);
         return User.create(testUserData)
       })
       .then((user) => {
@@ -61,7 +58,6 @@ describe('User Router to /api/user', () => {
         .post('/api/signup')
         .send(newUser)
         .then((res) => {
-          console.log(res.body);
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.include.keys('message');
@@ -121,7 +117,6 @@ describe('User Router to /api/user', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(activity)
         .then((res) => {
-          console.log(res.body);
           res.should.have.status(200);
           res.should.be.json;
           res.body.should.include.keys('activities');

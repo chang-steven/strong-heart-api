@@ -22,7 +22,6 @@ const createAuthToken = user => jwt.sign(
 
 // New user registration
 userRouter.post('/signup', (req, res) => {
-  console.log(req.body);
   const requiredFields = ['email', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -83,7 +82,6 @@ userRouter.post('/signup', (req, res) => {
       );
     })
     .then((user) => {
-      console.log(user);
       const message = { message: `Successfully created user: ${user.email}, please log in!` };
       return res.status(200).json(message);
     })
@@ -95,15 +93,12 @@ userRouter.post('/signup', (req, res) => {
 
 // User Login
 userRouter.post('/user', (req, res) => {
-  console.log('.....Inside of api/user post request');
-  console.log(req.body);
   User.findOne({ email: req.body.email })
     .populate({
       path: 'exerciseLog',
       select: '_id date activity duration',
     })
     .then((foundUser) => {
-      console.log(foundUser);
       return foundUser.validatePassword(req.body.password)
         .then((isPasswordCorrect) => {
           if (!isPasswordCorrect) {
@@ -125,7 +120,6 @@ userRouter.post('/user', (req, res) => {
               exerciseStatistics: parsedData.exerciseStatistics,
               authToken,
             };
-            console.log(user);
             res.json(user);
           }
         });
@@ -141,8 +135,6 @@ userRouter.post('/user', (req, res) => {
 });
 
 userRouter.post('/activity', jwtAuth, (req, res) => {
-  console.log(req.user);
-  console.log(req.body);
   const activity = req.body.activity.toLowerCase();
   let numActivities;
   User.findById(req.user._id)
@@ -160,7 +152,6 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
       );
     })
     .then((response) => {
-      console.log(response);
       if (numActivities === response.activities.length) {
         return res.status(422).json({
           code: 422,
@@ -178,7 +169,6 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
 });
 
 userRouter.get('/user', jwtAuth, (req, res) => {
-  console.log(req.user);
   User.findById(req.user._id)
     .populate({
       path: 'exerciseLog',
@@ -186,7 +176,6 @@ userRouter.get('/user', jwtAuth, (req, res) => {
     })
     .then((result) => {
       const parsedData = dataParser(result.exerciseLog);
-      console.log(parsedData);
       const sortedActivities = result.activities.sort();
       const userInfo = {
         currentUser: result._id,

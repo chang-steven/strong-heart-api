@@ -11,9 +11,7 @@ const { Exercise } = require('../src/models/exercise');
 
 const {
   seedHeartStrongDatabase,
-  generateUserData,
   generateExerciseData,
-  createTestUser,
   teardownDatabase
 } = require('./test-functions');
 
@@ -31,9 +29,15 @@ describe('Exercise Router to /api/exercise', () => {
   before(() => runServer(TEST_DATABASE_URL));
 
   beforeEach((done) => {
-    testUserData = generateUserData();
-    console.log(testUserData);
-    User.create(testUserData)
+    testUserData = {
+      email: faker.internet.email(),
+      unhashedPassword: faker.internet.password(),
+    };
+    User.hashPassword(testUserData.unhashedPassword)
+      .then((password) => {
+        testUserData.password = password;
+        return User.create(testUserData)
+      })
       .then((user) => {
         testUser = user;
         seedHeartStrongDatabase()
@@ -102,7 +106,6 @@ describe('Exercise Router to /api/exercise', () => {
               return Exercise.findById(deleteId._id);
             })
             .then((exercise) => {
-              console.log(exercise);
               should.not.exist(exercise);
             });
         });
