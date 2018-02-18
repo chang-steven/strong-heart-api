@@ -22,7 +22,7 @@ exerciseRouter.post('/exercise', jwtAuth, (req, res) => {
       code: 422,
       reason: 'ValidationError',
       message: 'Missing field',
-      location: missingField
+      location: missingField,
     });
   }
 

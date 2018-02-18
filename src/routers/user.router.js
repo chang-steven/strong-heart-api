@@ -6,8 +6,8 @@ const { dataParser } = require('../config/utils');
 const { User } = require('../models/user');
 
 const userRouter = express.Router();
-
 userRouter.use(passport.initialize());
+
 require('../config/passport')(passport);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
@@ -31,7 +31,7 @@ userRouter.post('/signup', (req, res) => {
       code: 422,
       reason: 'ValidationError',
       message: 'Missing field',
-      location: missingField
+      location: missingField,
     });
   }
 
@@ -66,7 +66,7 @@ userRouter.post('/signup', (req, res) => {
             email: req.body.email,
             password: hashedPassword,
           });
-        })
+        });
     })
     .then((user) => {
       const activities = ['aerobics', 'basketball', 'running', 'tennis'];
@@ -125,6 +125,7 @@ userRouter.post('/user', (req, res) => {
               exerciseStatistics: parsedData.exerciseStatistics,
               authToken,
             };
+            console.log(user);
             res.json(user);
           }
         });
@@ -146,7 +147,7 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
   let numActivities;
   User.findById(req.user._id)
     .then((data) => {
-      numActivities = data.activities.length
+      numActivities = data.activities.length;
     })
     .then(() => {
       return User.findByIdAndUpdate(
@@ -156,7 +157,7 @@ userRouter.post('/activity', jwtAuth, (req, res) => {
           { activities: activity },
         },
         { new: true },
-      )
+      );
     })
     .then((response) => {
       console.log(response);

@@ -1,13 +1,13 @@
 {
   "name": "strong-heart-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "HEARTSTRONG is a personal exercise tracker, helping you log your activity ensuring you reap the benefits of cardiovascular fitness.  Regular exercise is difficult, but HEARTSTRONG provides visual analysis and statistics about your exercise, helping you keep on track.",
   "main": "./src/server.js",
   "scripts": {
     "start": "node ./src/server.js",
     "test": "mocha"
   },
-  "author": "",
+  "author": "Steven Chang",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,7 +15,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "jsonwebtoken": "^8.1.1",
-    "mongoose": "^4.13.9",
+    "mongoose": "^5.0.6",
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",

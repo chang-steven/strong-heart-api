@@ -15,9 +15,7 @@ const {
 } = require('./config/main');
 
 mongoose.Promise = global.Promise;
-
 app.use(morgan('dev'));
-
 
 // CORS
 app.use((req, res, next) => {

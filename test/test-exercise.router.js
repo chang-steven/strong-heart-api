@@ -74,7 +74,6 @@ describe('Exercise Router to /api/exercise', () => {
             .set('Authorization', `Bearer ${token}`)
             .send(updatedExercise)
             .then((res) => {
-              console.log(res);
               res.should.have.status(200);
               res.should.be.json;
               return Exercise.findById(updatedExercise._id);
@@ -109,8 +108,4 @@ describe('Exercise Router to /api/exercise', () => {
         });
     });
   });
-
-
-
-
 });

@@ -8,13 +8,9 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const { User } = require('../src/models/user');
-const { Exercise } = require('../src/models/exercise');
 
 const {
   seedHeartStrongDatabase,
-  generateUserData,
-  generateExerciseData,
-  createTestUser,
   teardownDatabase
 } = require('./test-functions');
 
@@ -31,9 +27,18 @@ describe('User Router to /api/user', () => {
   before(() => runServer(TEST_DATABASE_URL));
 
   beforeEach((done) => {
-    testUserData = generateUserData();
+    testUserData = {
+      email: faker.internet.email(),
+      unhashedPassword: faker.internet.password(),
+    };
     console.log(testUserData);
-    User.create(testUserData)
+    User.hashPassword(testUserData.unhashedPassword)
+      .then((password) => {
+        console.log(password);
+        testUserData.password = password;
+        console.log(testUserData);
+        return User.create(testUserData)
+      })
       .then((user) => {
         testUser = user;
         seedHeartStrongDatabase()
@@ -76,22 +81,22 @@ describe('User Router to /api/user', () => {
     });
   });
 
-  // describe('POST request to /user', () => {
-  //   it('Should login a registered user', () => {
-  //     const loginUser = {
-  //       email: testUserData.email,
-  //       password: testUserData.password
-  //     }
-  //     return chai.request(app)
-  //       .post('/api/user')
-  //       .send(loginUser)
-  //       .then((res) => {
-  //         res.should.have.status(200);
-  //         res.should.be.json;
-  //         res.body.should.include.keys('message', 'currentUser', 'activities', 'exerciseLog', 'exerciseStatistics', 'authtoken');
-  //       });
-  //   });
-  // });
+  describe('POST request to /user', () => {
+    it('Should login a registered user', () => {
+      const loginUser = {
+        email: testUserData.email,
+        password: testUserData.unhashedPassword
+      }
+      return chai.request(app)
+        .post('/api/user')
+        .send(loginUser)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.include.keys('message', 'currentUser', 'activities', 'exerciseLog', 'exerciseStatistics', 'authToken');
+        });
+    });
+  });
 
   describe('GET request to /user', () => {
     it('Should get user info if token', () => {
