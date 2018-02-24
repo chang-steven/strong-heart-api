@@ -10,7 +10,8 @@ HEARTSTRONG is a personal exercise tracker, helping you log exercise sessions en
 
 The HEARTSTRONG API is an Express application using Nodejs 
 <ul>
-  <li>API uses Mongoose for object modeling for the MongoDB database.</li>
+  <li>Implements RESTful architecture style</li>
+  <li>Mongoose for object modeling for the MongoDB database.</li>
   <li>Passwords are encrypted with bcryptjs</li>
   <li>JWT authentiction is session-based and does not persist</li>
   <li>API endpoints are tested with Mocha, Chai, Faker</li>
