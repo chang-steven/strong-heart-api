@@ -1,8 +1,6 @@
 # HEARTSTRONG API  [![Build Status](https://travis-ci.org/chang-steven/strong-heart-api.svg?branch=master)](https://travis-ci.org/chang-steven/strong-heart-api)
 
 ### introduction:
-HEARTSTRONG is a personal exercise tracker, helping you log your activity ensuring you reap the benefits of cardiovascular fitness.  Regular exercise is difficult, but HEARTSTRONG provides visual analysis and statistics about your exercise, helping you keep on track.
-
 HEARTSTRONG is a personal exercise tracker, helping you log exercise sessions ensuring you reap the benefits of cardiovascular fitness.  Regular exercise is difficult, but HEARTSTRONG provides visual analysis about minutes exercised per session and displays data about the types of activities performed using Chart.js, helping you keep on track.  You can dynamically add new types of activites and exercise sessions, and see a lifetime log of all previous exercise.
 
 ### technologies: 
