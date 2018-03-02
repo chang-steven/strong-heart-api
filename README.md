@@ -6,12 +6,12 @@ HEARTSTRONG is a personal exercise tracker, helping you log exercise sessions en
 ### technologies: 
 / <a href="https://nodejs.org/">Node.js</a> / <a href="https://expressjs.com/">Express</a> / <a href="http://mongoosejs.com/">Mongoose</a> / <a href="https://docs.mongodb.com/">MongoDB</a> / <a href="http://www.passportjs.org/">Passport</a> / bcryptjs / <a href="https://mochajs.org/">Mocha</a> + <a href="http://chaijs.com/">Chai</a> (testing) / <a href="https://travis-ci.org/">Travis CI</a> / <a href="https://www.heroku.com/">Heroku</a> /
 
-The HEARTSTRONG API is an Express application using Nodejs 
+The HEARTSTRONG API is an Express application using Node.js 
 <ul>
   <li>Implements RESTful architecture style</li>
   <li>Mongoose for object modeling for the MongoDB database.</li>
   <li>Passwords are encrypted with bcryptjs</li>
-  <li>JWT authentiction is session-based and does not persist</li>
+  <li>JWT authentication is session-based and does not persist</li>
   <li>API endpoints are tested with Mocha, Chai, Faker</li>
 </ul>
 
